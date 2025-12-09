@@ -7,11 +7,12 @@
 
 #define UE_MS_SHIFT 4
 
+#define UE_TURN_SH 0
 #define UE_DIR_SH 1
 #define UE_HOLD_SH 2
 #define UE_FAST_SH 3
 
-#define UE_TURN (1 << 0)
+#define UE_TURN (1 << UE_TURN_SH)
 #define UE_DIR (1 << UE_DIR_SH)
 #define UE_HOLD (1 << UE_HOLD_SH)
 #define UE_FAST (1 << UE_FAST_SH)
@@ -203,7 +204,7 @@ class uEncoderVirt {
                 break;
         }
 
-        uint8_t state = UE_TURN |
+        uint8_t state = (1 << UE_TURN_SH) |
                         (((_pos < 0) ^ _rev) << UE_DIR_SH) |
                         (pressed << UE_HOLD_SH) |
                         ((uint8_t(uint8_t(millis() >> UE_MS_SHIFT) - _tmr) < (UE_FAST_TIME >> UE_MS_SHIFT)) << UE_FAST_SH);
