@@ -88,8 +88,8 @@ class uEncoderVirt {
             case State::RightFast:
             case State::RightHold:
             case State::RightHoldFast:
-                return 1;
-            default: return 0;
+                return true;
+            default: return false;
         }
     }
 
