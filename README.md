@@ -7,7 +7,7 @@
 [![Foo](https://img.shields.io/badge/ПОДПИСАТЬСЯ-НА%20ОБНОВЛЕНИЯ-brightgreen.svg?style=social&logo=telegram&color=blue)](https://t.me/GyverLibs)
 
 # uEncoder
-Очередной класс энкодера и энкодера с кнопкой для Arduino.
+Очередной класс энкодера и энкодера с кнопкой (на базе [uButton](https://github.com/GyverLibs/uButton)) для Arduino.
 
 По API это на 99% аналог [EncButton](https://github.com/GyverLibs/EncButton), но чуточку легче, в 1.5 раза быстрее опрашивается и написан в более читаемом конечно-автоматном стиле, а не на флагах.
 
@@ -15,8 +15,8 @@
 Совместима со всеми Arduino платформами (используются Arduino-функции)
 
 ### Зависимости
-- uButton
-- GyverIO
+- [uButton](https://github.com/GyverLibs/uButton)
+- [GyverIO](https://github.com/GyverLibs/GyverIO)
 
 ## Содержание
 - [Использование](#usage)
