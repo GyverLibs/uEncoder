@@ -38,11 +38,11 @@ class uEncoderVirt {
         RightHoldFast = RightFast | RightHold,  // быстрый нажатый поворот вправо
     };
 
-    uEncoderVirt() : _state(State::Idle), _type(Type::Step4Low) {}
+    uEncoderVirt() : _state(_st(State::Idle)), _type(_tp(Type::Step4Low)) {}
 
     // установить тип энкодера (Type::Step4Low, Type::Step4High, Type::Step2, Type::Step1)
     void setEncType(Type type) {
-        _type = type;
+        _type = _tp(type);
     }
 
     // инвертировать направление энкодера
@@ -57,19 +57,19 @@ class uEncoderVirt {
 
     // сбросить состояние (принудительно закончить обработку)
     void reset() {
-        _state = State::Idle;
+        _state = _st(State::Idle);
     }
 
     // ====================== GET ======================
     // получить текущее состояние
     State getState() {
-        return _state;
+        return _st(_state);
     }
 
     // был поворот [событие]
     uint8_t turn() {
         // return uint8_t(_state);
-        switch (_state) {
+        switch (_st(_state)) {
             case State::Idle: return false;
             default: return true;
         }
@@ -83,7 +83,7 @@ class uEncoderVirt {
     // направление энкодера (0 или 1) [состояние]
     bool dirBool() {
         // return uint8_t(_state) & UE_DIR;
-        switch (_state) {
+        switch (_st(_state)) {
             case State::Right:
             case State::RightFast:
             case State::RightHold:
@@ -96,7 +96,7 @@ class uEncoderVirt {
     // нажатый поворот энкодера [событие]
     bool turnH() {
         // return _eq(UE_TURN | UE_HOLD);
-        switch (_state) {
+        switch (_st(_state)) {
             case State::RightHold:
             case State::RightHoldFast:
             case State::LeftHold:
@@ -109,7 +109,7 @@ class uEncoderVirt {
     // быстрый поворот энкодера [состояние]
     bool fast() {
         // return uint8_t(_state) & UE_FAST;
-        switch (_state) {
+        switch (_st(_state)) {
             case State::RightFast:
             case State::RightHoldFast:
             case State::LeftFast:
@@ -122,7 +122,7 @@ class uEncoderVirt {
     // поворот направо [событие]
     bool right() {
         // return _eq(UE_TURN | UE_DIR | UE_HOLD, UE_TURN | UE_DIR);
-        switch (_state) {
+        switch (_st(_state)) {
             case State::Right:
             case State::RightFast:
                 return true;
@@ -133,7 +133,7 @@ class uEncoderVirt {
     // поворот налево [событие]
     bool left() {
         // return _eq(UE_TURN | UE_DIR | UE_HOLD, UE_TURN);
-        switch (_state) {
+        switch (_st(_state)) {
             case State::Left:
             case State::LeftFast:
                 return true;
@@ -144,7 +144,7 @@ class uEncoderVirt {
     // нажатый поворот направо [событие]
     bool rightH() {
         // return _eq(UE_TURN | UE_DIR | UE_HOLD, UE_TURN | UE_DIR | UE_HOLD);
-        switch (_state) {
+        switch (_st(_state)) {
             case State::RightHold:
             case State::RightHoldFast:
                 return true;
@@ -155,7 +155,7 @@ class uEncoderVirt {
     // нажатый поворот налево [событие]
     bool leftH() {
         // return _eq(UE_TURN | UE_DIR | UE_HOLD, UE_TURN | UE_HOLD);
-        switch (_state) {
+        switch (_st(_state)) {
             case State::LeftHold:
             case State::LeftHoldFast:
                 return true;
@@ -166,7 +166,7 @@ class uEncoderVirt {
     // нажата кнопка энкодера [состояние]
     bool encHolding() {
         // return uint8_t(_state) & UE_HOLD;
-        switch (_state) {
+        switch (_st(_state)) {
             case State::RightHold:
             case State::RightHoldFast:
             case State::LeftHold:
@@ -178,8 +178,9 @@ class uEncoderVirt {
 
     // опросить энкодер, вернёт true при повороте
     bool poll(bool e0, bool e1, bool pressed = false) {
-        _state = pollRaw(e0, e1, pressed);
-        return _state != State::Idle;
+        State st = pollRaw(e0, e1, pressed);
+        _state = _st(st);
+        return st != State::Idle;
     }
 
     // опросить энкодер без смены состояния
@@ -190,7 +191,7 @@ class uEncoderVirt {
         _e0 = e0, _e1 = e1;
         if (!_pos) return State::Idle;
 
-        switch (_type) {
+        switch (_tp(_type)) {
             case Type::Step4Low:
                 if (!(e0 & e1)) return State::Idle;  // skip 01, 10, 00
                 break;
@@ -210,12 +211,12 @@ class uEncoderVirt {
                         ((uint8_t(uint8_t(millis() >> UE_MS_SHIFT) - _tmr) < (UE_FAST_TIME >> UE_MS_SHIFT)) << UE_FAST_SH);
         _pos = 0;
         _tmr = (millis() >> UE_MS_SHIFT);
-        return State(state);
+        return _st(state);
     }
 
    protected:
-    State _state : 4;
-    Type _type : 2;
+    uint8_t _state : 4;
+    uint8_t _type : 2;
     uint8_t _e0 : 1;
     uint8_t _e1 : 1;
 
@@ -225,6 +226,20 @@ class uEncoderVirt {
 
     uint8_t _tmr;
 
+    State _st(uint8_t st) {
+        return State(st);
+    }
+    uint8_t _st(State st) {
+        return uint8_t(st);
+    }
+
+   private:
+    Type _tp(uint8_t tp) {
+        return Type(tp);
+    }
+    uint8_t _tp(Type tp) {
+        return uint8_t(tp);
+    }
     // bool _eq(uint8_t mask, uint8_t val) {
     //     return (uint8_t(_state) & mask) == val;
     // }

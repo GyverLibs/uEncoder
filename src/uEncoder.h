@@ -17,15 +17,15 @@ class uEncoder : public uEncoderVirt {
     // опросить энкодер
     bool tick(bool pressed = false) {
         if (_isr) _isr = false;
-        else _state = pollRaw(gio::read(_p0), gio::read(_p1), pressed);
-        return _state != State::Idle;
+        else _state = _st(pollRaw(gio::read(_p0), gio::read(_p1), pressed));
+        return _state != _st(State::Idle);
     }
 
     // опросить энкодер в прерывании
     void tickISR(bool pressed = false) {
         State state = pollRaw(gio::read(_p0), gio::read(_p1), pressed);
-        if (uint8_t(state)) {
-            _state = state;
+        if (state != State::Idle) {
+            _state = _st(state);
             _isr = true;
         }
     }
